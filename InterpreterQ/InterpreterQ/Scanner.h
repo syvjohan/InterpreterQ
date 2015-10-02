@@ -3,5 +3,4 @@
 
 void readFile(const char *path);
 
-
 #endif //!SCANNER_H

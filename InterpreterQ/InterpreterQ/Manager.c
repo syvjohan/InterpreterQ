@@ -4,9 +4,9 @@
 #include "Defs.h"
 #include "Memmory.h"
 
-void sysMemAlloc(char *start, size_t size) {
+void sysMemAlloc(const size_t size) {
 	allocateSysMem(size);
-	createAdresses(start, size);
+	createAdresses(size);
 }
 
 void include() {

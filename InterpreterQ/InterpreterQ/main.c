@@ -9,7 +9,10 @@ int main(void) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); //Check for memoryLeaks.
 
 	const char *path = "syntax/test.main.q";
+
 	readFile(path);
+
+	
 
 	system("pause");
 	return 0;
