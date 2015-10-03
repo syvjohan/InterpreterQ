@@ -1,11 +1,11 @@
 :SYSMEMALLOC(16); /*Allocate 256 bytes*/
-/*RESERVED: bytes 0 - 128 .*/
+/*RESERVED: bytes 0 - 128 . Heap*/
 /*RESERVED: bytes 129 - 256. Stack */
 
 :include("../anotherFile.q");
 :include("../stack.q");
 
-$subroutine printString(cStr) {
+$subroutine printString {
 	alias txtA : #000190 - #000197 = 'A','d', 'd','r','e','s','s',':', '\0';
 	alias txtB : #000198 - #000204 = 'V', 'a', 'l', 'u', 'e', ':', '\0';
 
@@ -16,16 +16,16 @@ $subroutine printString(cStr) {
 	:printV(cStr);
 }
 
-$subroutine printNumber(#000017) {
+$subroutine printNumber {
 	/*OBSERVE that memory is never freed it only get overwriten.*/
-	alias txt : #000190 - #000206 = 'H', 'i', 'g', 'h', 'e', 's', 't', ' ', 'n', 'u', 'm', 'b', 'e', 'r', ':', '\0';
+	alias txt : #000190 - #000206 = 'H', 'i', 'g', 'h', 'e', 's', 't', ' ', 'n', 'u', 'm', 'b', 'e', 'r', ':', '\0'; 
 
 	:printS(txt);
 	:printV(#000017);
 }
 
-$subroutine printNumbers() {
-	alias txt : #000135 - #000148 = 'v', 'a', 'l', 'u', 'e', ' ', 'o', 'f', 'i', 'i', 's';
+$subroutine printNumbers {
+	alias txt : #000135 - #000149 = 'v', 'a', 'l', 'u', 'e', ' ', 'o', 'f', ' ', 'i', ':', ' ';
 	alias i : #000134 = 10;
 
 	:LOOP
@@ -41,8 +41,8 @@ $subroutine printNumbers() {
 	}
 }
 
-$subroutine getMax(numbers) {
-	alias max : #000136 = 0;
+$subroutine getMax {
+	alias max : #000136 = 0; /*4 bytes*/
 	alias i : #000134 = 0;
 
 	while (i != 10) {
@@ -53,28 +53,26 @@ $subroutine getMax(numbers) {
 		++i;
 	}
 
-	return max;
+	#000017 = max;
 }
 
-#000001 - #000006 = 'h','e','l','l','o','/0';
-alias cStr : #000001 - #000006;
+alias cStr : #000001 - #000006 = 'h','e','l','l','o','/0';
 
-test$printString(cStr);
+test$printString;
 
 alias numbers : #0000050 - #000089;
 numbers = 1, 9, 3, 4, 7, 2, 4, 8, 5, 6 ;
 
-#000017 = $getMax(numbers);
-test$printNumber(#000017);
+$getMax();
+test$printNumber;
 
-test$printNumbers(numbers);
+test$printNumbers;
 
-#000037 = anotherFile$add(#000050 - #000053, #000086 - #000089);
-test$printNumber(#000037);
+anotherFile$add;
+test$printNumber;
 
 alias p : #000039 - #000040 = 'p','\0';
-#000038 = anotherFile$append(#000001 - #000006, p);
-test$printString(#000038);
-
+anotherFile$append;
+test$printString;
 
 :system("pause"); /*Same functionalite as C.*/

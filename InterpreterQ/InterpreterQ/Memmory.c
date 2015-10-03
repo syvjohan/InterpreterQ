@@ -8,7 +8,6 @@ size_t availableMemSize;
 
 struct memAddress {
 	char *address;
-	size_t size;
 };
 
 struct memAddress *addresses;
@@ -70,7 +69,6 @@ void createAdresses(const size_t size) {
 
 	}
 
-	addresses->size = size;
 	availableAddresses = addresses;
 }
 
@@ -80,7 +78,7 @@ struct memAddress getAvailableAddresses() {
 
 int isAdressAvailable(const char *address) {
 	int i;
-	size_t size = availableAddresses->size;
+	size_t size = allocatedMemSize;
 	for (i = 0; i != size; ++i) {
 		if (*(availableAddresses + i)->address == address) {
 			return 1;
