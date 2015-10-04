@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "Defs.h"
-#include "Manager.h"
 
 #define MOV 0x01
 #define ADD 0x02
@@ -44,15 +43,39 @@ struct Instruction {
 };
 
 struct Instruction *instructions;
+int numberOfInstructions = 0;
 
-struct Register {
-	void *value;
-	char *name;
-};
-
-struct Register *reg;
+int reg[4]; // r0, r1, r2, r3
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof(*A)) //Determines size of array (array / sizeof element)
+
+int packageData(const char *str) {
+	int package;
+	char tmp[16];
+	int len = strlen(str);
+	if (str[0] == 'r') {
+		memcpy(tmp, str + 1, len - 1);
+		tmp[len - 1] = '\0';
+		package = (short)(atoi(tmp) & 0xFFFF);
+	}
+	else {
+		package = (short)(atoi(str) & 0xFFFF);
+	}
+
+	return package;
+}
+
+int findFirstOf(const char *cStr, char ch) {
+	int len = strlen(cStr);
+	int i;
+
+	for (i = 0; i != len; ++i) {
+		if (*(cStr + i) == ch) {
+			return i;
+		}
+	}
+	return -1;
+}
 
 struct Instruction parseLine(const char *line) {
 	char cmdStr[16];
@@ -88,26 +111,26 @@ struct Instruction parseLine(const char *line) {
 	return instruct;
 }
 
-int packageData(const char *str) {
-	int package;
-	char tmp[16];
-	int len = strlen(str);
-	if (str[0] == 'r') {
-		memcpy(tmp, str + 1, len - 1);
-		tmp[len -1] = '\0';
-		package = (short)(atoi(tmp) & 0xFFFF);
+int getNumberOfFileLines(const char *path) {
+	FILE *file = fopen(path, "r");
+	int counter = 0;
+	while (!feof(file)) {
+		char ch = fgetc(file);
+		if (ch == '\n') {
+			++counter;
+		}
 	}
-	else {
-		package = (short)(atoi(str) & 0xFFFF);
-	}
-	
-	return package;
+
+	fclose(file);
+	return counter;
 }
 
 void readFile(const char *path) {
 	FILE *file = fopen(path, "r");
 	char line[64];
-	instructions = (char*)MALLOC(32);
+	numberOfInstructions = getNumberOfFileLines(path);
+	instructions = (struct Instruction*)MALLOC(numberOfInstructions);
+
 	int i = 0;
 	while (fgets(line, sizeof(line), file) != NULL) {
 		if (feof(file)) {
@@ -117,63 +140,43 @@ void readFile(const char *path) {
 		++i;
 	}
 
-}
-
-int findFirstOf(const char *cStr, char ch) {
-	int len = strlen(cStr);
-	int i;
-
-	for (i = 0; i != len; ++i) {
-		if (*(cStr + i) == ch) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-
-void insertIntoRegister(void *value, const char regName) {
-	int i;
-	for (i = 0; i < ARRAY_SIZE(reg); ++i) {
-		if (strcmp(regName, reg[i].name) == 0) {
-			reg[i].value = value;
-			return;
-		}
-			
-	}
-	//TODO insert value and name into reg!!
-	reg[ARRAY_SIZE(reg) + 1].name = regName;
-	reg[ARRAY_SIZE(reg) + 1].value = value;
+	fclose(file);
 }
 
 void execute() {
+	int reg0 = -1;
+
 	int i = 0;
 	do {
+		reg0 = instructions[i].op0 & 0xFFFF;
+
 		switch (instructions[i].opC.code) {
-		case MOV:
-			insertIntoRegister(instructions[i].op1, instructions[i].op0);
-			
-			break;
+			case MOV:
+				reg[reg0 & 0xFFFF] = instructions[i].op1;
+				break;
+			case ADD:
+				reg[reg0 & 0xFFFF] += instructions[i].op1;
+				break;
+			case SUB:
+				reg[reg0 & 0xFFFF] -= instructions[i].op1;
+				break;
+			case DIV:
+				reg[reg0 & 0xFFFF] /= instructions[i].op1;
+				break;
+			case MUL:
+				reg[reg0 & 0xFFFF] *= instructions[i].op1;
+				break;
+			case PRINT:
+				printf("%i\n", reg[reg0 & 0xFFFF]);
+				break;
+			case CMP:
 
-		case ADD:
-			insertIntoRegister(instructions[i].op1, instructions[i].op0);
-
-			break;
-
-		case PRINT:
-			insertIntoRegister(instructions[i].op1, instructions[i].op0);
-
-			break;
+				break;
 		}
 
-
+		++i;
 	} while (i != 32);
 
-}
-
-void startScanning(const char *path) {
-	readFile(path);
-	execute();
 }
 
 void destructor() {
@@ -181,134 +184,9 @@ void destructor() {
 	instructions = NULL;
 }
 
-/*void searchLine(const char *line);
-
-size_t readFirstLine(const char *path) {
-	FILE *file = fopen(path, "r");
-	char line[256];
-	char size[6];
-	char tmp[6];
-
-	while (fgets(line, sizeof(line), file)) {
-		if (strlen(line) > 1) {
-			char *word = strstr(line, ":SYSMEMALLOC(");
-			if (word != NULL) {
-				char *close = strstr(line, ");");
-				word += 12;
-				int i = (word +1) - line;
-				int k = close - (line);
-				
-				int j = 0;
-				while (i != k) {
-					*(tmp + 0) = line[i];
-					size[j] = tmp[0];
-					++j;
-					++i;
-				}
-
-				*(size + j) = '\0';
-
-				fclose(file);
-
-				return atoi(size);
-
-				
-			}
-			else {
-				//Wrong start statement!
-			}
-			
-		}
-		else {
-			//Line is empty!
-		}
-	}
-	fclose(file);
-	return 0;
+void startScanning(const char *path) {
+	readFile(path);
+	execute();
+	destructor();
 }
 
-void execute(struct Instruction instruction, int *counter) {
-
-}
-
-void readFile(const char *path) {
-	//Check first line
-	const size_t size = readFirstLine(path);
-	if (size < 1) {
-		printf("You cannot allocate less then 1 byte!");
-		exit(1);
-	}
-
-	sysMemAlloc(size);
-
-	FILE *file = fopen(path, "r");
-	struct Instruction *program = MALLOC(size);
-	struct Instruction tmp = { .op0 = 0, .op1 = 0 };
-	int counter = 0;
-	while (tmp.opC.code != EOF) {
-		fread(&tmp, sizeof(struct Instruction), 1, file);
-		program[++counter] = tmp;
-	}
-
-	//Run the program
-	int i;
-	for (i = 0; i != counter + 1; ++i) {
-		if ((program + i)->opC.code == EOF) {
-			exit(1);
-		}
-		else {
-			execute(program[i], &i);
-		}
-	}
-
-	fclose(file);
-
-
-	/*char *buff = MALLOC(size);
-	size_t lineLen = 0;
-	FILE *file = fopen(path, "r");
-	char line[256];
-
-	while (fgets(line, sizeof(line), file)) {
-		if (strlen(line) != 1) {
-			searchLine(line);
-		}
-	}
-
-	printf("%s\n", line);
-
-
-	fclose(file);
-	free(buff);
-}
-
-void searchLine(const char *line) {
-	char tmp[20];
-
-	int i;
-	for (i = 0; i != '\n' || i != '\r'; ++i) {
-		*(tmp + i) = *(line + i);
-		if (memcmp(tmp, ":include", 8)) {
-			include();
-		}
-		else if (memcmp(tmp, "$subroutine", 11)) {
-			function();
-		}
-		else if (memcmp(tmp, "alias", 5)) {
-			alias();
-		}
-		else if (memcmp(tmp, ":printV", 6)) {
-			printV();
-		} 
-		else if (memcmp(tmp, ":prinA", 6)) {
-			printA();
-		}
-		else if (memcmp(tmp, ":while", 6)) {
-			WHILE();
-		}
-		else if (memcmp(tmp, ":goto", 5)) {
-			GOTO();
-		}
-	}
-}
-*/
