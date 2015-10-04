@@ -3,5 +3,6 @@ ADD r0 1
 SUB r0 4
 DIV r0 2
 MUL r0 2
+PRINT r0 0
 CMP r0 30
-PRINT r0 4
+JE 2 0

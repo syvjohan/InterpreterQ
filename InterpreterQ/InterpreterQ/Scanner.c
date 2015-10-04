@@ -43,7 +43,6 @@ struct Instruction {
 };
 
 struct Instruction *instructions;
-int numberOfInstructions = 0;
 
 int reg[4]; // r0, r1, r2, r3
 
@@ -111,6 +110,7 @@ struct Instruction parseLine(const char *line) {
 	return instruct;
 }
 
+//Not used!!!
 int getNumberOfFileLines(const char *path) {
 	FILE *file = fopen(path, "r");
 	int counter = 0;
@@ -127,9 +127,8 @@ int getNumberOfFileLines(const char *path) {
 
 void readFile(const char *path) {
 	FILE *file = fopen(path, "r");
-	char line[64];
-	numberOfInstructions = getNumberOfFileLines(path);
-	instructions = (struct Instruction*)MALLOC(numberOfInstructions);
+	char line[16];
+	instructions = (struct Instructor*)MALLOC(1024);
 
 	int i = 0;
 	while (fgets(line, sizeof(line), file) != NULL) {
@@ -169,8 +168,28 @@ void execute() {
 			case PRINT:
 				printf("%i\n", reg[reg0 & 0xFFFF]);
 				break;
+			//Compare.
 			case CMP:
-
+				if (reg[reg0 & 0xFFFF] > instructions[i].op1) {
+					reg[3] = 1;
+				}
+				else if (reg[reg0 & 0xFFFF] < instructions[i].op1) {
+					reg[3] = -1;
+				} else {
+					reg[3] = 0;
+				}
+				break;
+			//Jump Less.
+			case JLE:
+				i = instructions[i].op1 -1;
+				break;
+			//Junl equal.
+			case JE:
+				i = instructions[i].op1 -1;
+				break;
+			//Jump greater.
+			case JGE:
+				i = instructions[i].op1 -1;
 				break;
 		}
 
