@@ -14,6 +14,7 @@
 #define JLE 0x08
 #define JE 0x09
 #define JGE 0x0A
+#define LABEL 0x0B
 
 #define OP_CODE(A) { A, #A }
 
@@ -33,6 +34,7 @@ struct OpCode opCodes[] = {
 	OP_CODE(JLE),
 	OP_CODE(JE),
 	OP_CODE(JGE),
+	OP_CODE(LABEL),
 };
 
 struct Instruction {
@@ -45,6 +47,13 @@ struct Instruction {
 struct Instruction *instructions;
 
 int reg[4]; // r0, r1, r2, r3
+
+struct Map {
+	char *name;
+	int index;
+};
+
+struct Map *mapLabel;
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof(*A)) //Determines size of array (array / sizeof element)
 
@@ -73,10 +82,20 @@ int findFirstOf(const char *cStr, char ch) {
 			return i;
 		}
 	}
+	return 0;
+}
+
+int exchangeLabel(char *str) {
+	int i;
+	for (i = 0; i != 10; ++i) {
+		if (str == mapLabel[i].name) {
+			return mapLabel[i].index;
+		}
+	}
 	return -1;
 }
 
-struct Instruction parseLine(const char *line) {
+struct Instruction parseLine(const char *line, int count) {
 	char cmdStr[16];
 	char op0Str[16];
 	char op1Str[16];
@@ -88,10 +107,30 @@ struct Instruction parseLine(const char *line) {
 	cmdStr[op0] = '\0';
 
 	memcpy(op0Str, line + op0 + 1, op1);
+	memcpy(op1Str, line + op0 + op1 +2, -op1 - op0 -2 + len);
+
+	op1Str[-op1 - op0 -2 + len] = '\0';	
 	op0Str[op1] = '\0';
 
-	memcpy(op1Str, line + op0 + op1 + 2, -op1 - op0 - 2 + len);
-	op1Str[-op1 - op0 - 2 + len] = '\0';
+	if (strcmp(cmdStr, "JE") == 0 || strcmp(cmdStr, "JLE") == 0 || strcmp(cmdStr, "JGE") == 0) {
+		memcpy(op0Str, line + op0, len - op0);
+		op0Str[len - op0] = '\0';
+		sprintf(op0Str, "%i", exchangeLabel(op0Str));
+
+		*op1Str = '\0';
+	}
+
+	if (strlen(cmdStr) == 0) {
+		int size = ARRAY_SIZE(mapLabel);
+		memcpy(op0Str, line, len);
+		op0Str[len] = '\0';
+		memcpy(cmdStr, "LABEL\0", 6); 
+		sprintf(op1Str, "%i", count);
+
+		mapLabel[size].index = count;
+		mapLabel[size].name = op0Str;
+
+	} 
 
 	struct Instruction instruct;
 	instruct.op0 = packageData(op0Str);
@@ -128,14 +167,17 @@ int getNumberOfFileLines(const char *path) {
 void readFile(const char *path) {
 	FILE *file = fopen(path, "r");
 	char line[16];
-	instructions = (struct Instructor*)MALLOC(1024);
 
 	int i = 0;
 	while (fgets(line, sizeof(line), file) != NULL) {
 		if (feof(file)) {
 			return; //end of file.
 		}
-		*(instructions + i) = parseLine(line);
+		//Exclude empty lines.
+		else if (line[0] != '\n') {
+			*(instructions + i) = parseLine(line, i);
+		}
+
 		++i;
 	}
 
@@ -181,21 +223,20 @@ void execute() {
 				break;
 			//Jump Less.
 			case JLE:
-				i = instructions[i].op1 -1;
+				if (reg[3] < 0) { i = instructions[i].op0 - 1; }
 				break;
 			//Junl equal.
 			case JE:
-				i = instructions[i].op1 -1;
+				if (reg[3] == 0) { i = instructions[i].op0 - 1; }
 				break;
 			//Jump greater.
 			case JGE:
-				i = instructions[i].op1 -1;
+				if (reg[3] > 1) { i = instructions[i].op0 - 1; }
 				break;
 		}
-
 		++i;
 	} while (i != 32);
-
+	//exit(0); For release uncomment.
 }
 
 void destructor() {
@@ -203,7 +244,13 @@ void destructor() {
 	instructions = NULL;
 }
 
+void constructor() {
+	instructions = (struct Instructor*)MALLOC(1024);
+	mapLabel = (struct MapLabel*)MALLOC(10);
+}
+
 void startScanning(const char *path) {
+	constructor();
 	readFile(path);
 	execute();
 	destructor();

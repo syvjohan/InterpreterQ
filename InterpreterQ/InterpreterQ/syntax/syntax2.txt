@@ -1,0 +1,66 @@
+sysmemallocheap : 256 
+sysmemallocstack : 256
+
+include : "../code/anotherFile" 
+
+alias : x #1
+x : "f\0" 
+
+alias : v1 #256
+v1 : 43210
+
+alias : v2 #260
+v2 : 43210
+
+alias : k #5
+k : "hej\0"
+
+alias : l #9
+l : "da\0"
+
+post : k ++
+pre : ++ k
+post : k --
+pre : -- k 
+
+printa : x
+printv : x
+
+append : k "pa dig"
+append : k l
+
+add : v1 3
+add : v1 v2
+
+sub : v1 2
+sub : v1 v2
+
+mul : v1 2
+mul : v1 v2
+
+div : v1 9
+div : v1 v2
+
+sizeof : k
+
+label : name
+cmp : v1 v2
+je : name
+jge : name
+jle : name
+
+subroutine : name start
+subroutine : name end
+
+system : "pause"
+
+assert : x y
+
+define : MOV 0x01
+
+// : comment
+
+je : name ska vara möjligt att name är en label eller subroutine.
+Det ska inte vara möjligt att börja skriva på heapen och även på stacken, stack/heap overflow.
+om inte sysmemallocstack och heap finns angivna i början så avslutas programmet.
+assert returnerar true eller false men skriver endast ut false "false".

@@ -1,0 +1,43 @@
+//Filename is s.main.q
+
+sysMemAlloc(256, 256);
+
+include("../code/anotherFile.q");
+
+#define ARRAY_SIZE(A) (sizeof(A) / sizeof(*A));
+
+alias v1 #3 = 1;
+alias v2 #7 = 2;
+alias v3 #11 = 3;
+alias v4 #15= 4;
+
+alias res0 #0 = calc(v1, '+');
+alias res1 #1 = calc(v3, '*');
+
+alias res3 #3 = anotherFile::doParty();
+
+printv(res0);
+printv(res1);
+
+printa(res0);
+printa(res1);
+
+printv(res3);
+
+::function add(v1, v2) {
+	return v1 + v2;
+}
+
+::function mul(v1, v2) {
+	return v1 * v2;
+}
+
+::function calc(s, op) {
+	if (op == '+') {
+		return ::add(s + 0, s + 4);
+	} else if (op == '*') {
+		return ::mul(s + 0, s + 4);
+	}
+	prints("Something went wrong");
+	return -1;
+}
