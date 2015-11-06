@@ -65,16 +65,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="heap.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="Manager.c" />
     <ClCompile Include="Memmory.c" />
     <ClCompile Include="Scanner.c" />
+    <ClCompile Include="stack.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Defs.h" />
-    <ClInclude Include="Manager.h" />
+    <ClInclude Include="heap.h" />
     <ClInclude Include="Memmory.h" />
     <ClInclude Include="Scanner.h" />
+    <ClInclude Include="stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

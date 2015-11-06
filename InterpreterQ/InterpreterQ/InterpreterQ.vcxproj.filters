@@ -18,13 +18,16 @@
     <ClCompile Include="Scanner.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Manager.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Memmory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="heap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,13 +35,16 @@
     <ClInclude Include="Scanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Memmory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="heap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

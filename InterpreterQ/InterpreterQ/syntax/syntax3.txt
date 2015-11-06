@@ -1,20 +1,29 @@
 //Filename is s.main.q
 
-sysMemAlloc(256, 256);
+SYSMEMALLOCHEAP(256);
+SYSMEMALLOCSTACK(256);
+SYSMEMALLOCHEAPTMP(16);
 
 include("../code/anotherFile.q");
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof(*A));
 
-alias v1 #3 = 1;
-alias v2 #7 = 2;
-alias v3 #11 = 3;
-alias v4 #15= 4;
+//int.
+alias v1 : #3 = 1;
+alias v2 : #7 = 2;
+alias v3 : #11 = 3;
+alias v4 : #15= 4;
 
-alias res0 #0 = calc(v1, '+');
-alias res1 #1 = calc(v3, '*');
+calc(v1, v2, '+');
+alias res0 : #0 = #513;
 
-alias res3 #3 = anotherFile::doParty();
+calc(v3, v4, '*');
+alias res1 : #1 = #513;
+
+#513 = anotherFile::doParty();
+alias res3 : #3 = #513;
+
+::printNumbers(v1);
 
 printv(res0);
 printv(res1);
@@ -24,20 +33,100 @@ printa(res1);
 
 printv(res3);
 
+
+
+//char.
+alias str1 : #20 = "hej\0";
+alias str2 : #24 = "pa\0";
+alias str3 : #27 = "dig\0";
+
+printv(strlen(#257));
+
+(strcmp(str1, str2)
+if (#257 == 0) {
+	prints("Not equal");
+} else {
+	prints("Equal");
+}
+
 ::function add(v1, v2) {
-	return v1 + v2;
+	#513 = v1 + v2;
 }
 
 ::function mul(v1, v2) {
-	return v1 * v2;
+	#513 = v1 * v2;
 }
 
-::function calc(s, op) {
+::function calc(v1, v2, op) {
 	if (op == '+') {
-		return ::add(s + 0, s + 4);
+		::add(v1 + 0, v2s + 0);
 	} else if (op == '*') {
-		return ::mul(s + 0, s + 4);
+		::mul(v1 + 0, v2 + 0);
 	}
 	prints("Something went wrong");
-	return -1;
 }
+
+::function printNumbers(v1) {
+	alias index : #513;
+	for (index = 0; index != 19; index += 4) {
+		#257 = v1 + index;
+		printv(#257);
+	}
+}
+
+::function strlen(str1) {
+	for (#513 = str1 + 0; #513 != '\0'; #513 = str1 +1) {
+		#517 += 1;
+	}
+	#257 = #517;
+}
+
+::function strcmp(str1, str2) {
+	#513 = str1 + 0;
+	#514 = 0;
+
+	do {
+		if (#513 ==  str2 + #514) {
+			#513 += 1;
+			#514 += 1;
+		} else {
+			#257 = 0;
+			return;
+		}
+
+	} while (#513 != '\0')
+
+	#257 = 1;
+}
+
+//file struct.q
+
+sp
+::function setSize();
+::function setMemStartPos();
+::function pop();
+::function push();
+
+struct container {
+	alias index : #555;
+	alias name : #559;
+}
+
+//file heap.q
+
+	For usability q have 10 predefined help functions: 
+			// this is a comment that compiler will exclude.
+			SYSMEMALLOCHEAP(bytes), 
+			SYSMEMALLOCStack(bytes),
+			SYSMEMALLOCHEAPTMP(bytes),
+			include("../code/mycodeFile.q"),
+			#define name TODO,
+			alias name : #address = 1,
+			alias name : #address = "hello world!",
+			alias name : #address = #anotherAddress,
+			printa(#address)
+			prints("This is a string!"),
+			printv(#addressToValue),
+			::function myFunction() {} second supported syntax is this::function myFunction() {}
+			::myFunction() second supported syntax is this::myFunction(),
+			anotherFile::yourFunction().

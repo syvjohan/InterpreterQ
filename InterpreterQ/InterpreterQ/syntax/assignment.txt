@@ -1,6 +1,177 @@
-Laboration - minneshantering.
+Lab - the memory
+	Introduction:
+		The programming language Q goal is to help student to understand memory.
+		There is no main function, the compiler starts to read from the file with the someName.main.q prefix,
+		the included files have only the .q prefix.
+		Functions do support return but dont support returning a value.
+		Compiler register functions and alias name there position inside the file doesn't mather.
+		Include need to be placed directly after allocation of memory.
+		For usability q have 10 predefined help functions: 
+			// this is a comment that compiler will exclude.
+			/* exclude this is a comment that compiler will exclude. */
+			SYSMEMALLOCHEAP(bytes), 
+			SYSMEMALLOCStack(bytes),
+			SYSMEMALLOCHEAPTMP(bytes),
+			include("../code/mycodeFile.q"),
+			#define name TODO,
+			alias name : #address = 1,
+			alias name : #address = "hello world!",
+			alias name : #address = #anotherAddress,
+			printa(#address)
+			prints("This is a string!"),
+			printv(#addressToValue),
+			::function myFunction() {} second supported syntax is this::function myFunction() {}
+			::myFunction() second supported syntax is this::myFunction(),
+			anotherFile::yourFunction().
 
-	uppgift 1:
+
+			for() {},
+			do {} while(),
+			if() {} else if() {} else {},
+			operator ==,
+			operator !=,
+			operator +=,
+			operator -=,
+			operator +,
+			operator -,
+			gate &&,
+			gate ||,
+
+		The assignments are not connected to each other if nothing else says so.
+
+		Assignment 1:
+			* Create a file named foo.main.q in the main directory. Unless otherwise stated put your code inside this file. Observe that you can change the filename if you want it is the main.q prefix that is important.
+
+			Every memory slot contains 1 byte (8 bits). 
+			A char always has the sizeof 1 byte the sizeof an int depends and specifies in the assignments.
+
+			* Allocate 16 bytes on the STACK.
+			* Allocate 16 bytes on the HEAP.
+			* Allocate 8 bytes on the TMP HEAP.
+
+			* define a macro that has the size of an INT(int32).
+			* define a macro that has the size of an CHAR.
+
+		Solution 1:
+			SYSMEMALLOCStack(16);
+			SYSMEMALLOCHEAP(16);
+			SYSMEMALLOCHEAPTMP(16);
+
+			#define INT 4;
+			#define CHAR 1;
+
+		Assignment 2:
+			* Create an alias for the first byte and name it x.
+			* Create an alias for the second byte and name it c.
+			* Create an alias for the third byte and name it y.
+
+			* Assign x value 'h' and c value 'i'.
+			* Assign y the values from x and c, there is two different ways to achive this do both and dont forget to end the string correctly!
+
+
+		Solution 2:
+			alias x : #0;
+			alias c : #1;
+			alias y : #2;
+
+			x = 'h';
+			c = 'i';
+			y = x + c '\0'; or #2 = #0 + #1 + '\0'; // #2 = h, #3 = i, #4 = '\0'.
+
+		Assignment 3:
+			* Use the solution from assignment 2 and implement the function strlen(argument) that count the number of characters in y:
+				# Remeber to use memory from the stack when we inside a scope.
+				# Create a for loop.
+				# Save counter value.
+			* Call function strlen(argument).
+			*print the resulted value.
+			*print the address to the resulted value.
+
+
+		Solution 3:
+			::function strlen(y) {
+				for (#16 = y + 0; #16 != '\0'; #16 = y +1) {
+					#32 += 1; //tmp memory space.
+				}
+				#5 = #32; //save value from tmp on the heap.
+			}
+			
+			this::strlen(y); or ::strlen(y);
+			
+			printv(#5);
+			printa(#5);
+
+		Assignment 4:
+			As you saw in assignment 3 you can calculate the size of a string with help of the '\0' because of this it is recommended to always add a '0\' at end of the string.
+			But what happens if we are trying to do intlen instead? The Q language only support char and int and these values are translated into bytes and stored into the memory slot, this mean that you are not directly storing a char or int on the memory slot, but dont worry Q does the translation into byte code for you. This means it is fully valid to set the end condition to whatever you want but since most programming standards are using '\0' we will do so.
+			To make sure no missunderstadnings has occured lets implement a intlen.
+
+			* create 3 alias containing number 1(int32), 2(int32) and '\0'(char).
+			* Calculate sum for 1 + 2.
+			* Implement intlen(arg).
+			* call intlen(arg).
+			*print value and address for result value. 
+
+		Solution 4:
+			alias x : #0 = 1; //four bytes.
+			alais c : #4 = 2; //four bytes.
+			alias e : #8 = '\0';
+			alias sum : #9 = 1 + 2; or alias sum : #9 = #0 + #4;
+
+			::function intlen(y) {
+				for (#16 = y + 0; #16 != '\0'; #16 = y +4) {
+					#32 += 1; //tmp memory space.
+				}
+				//Can't save value on heap because one bit is missing instead let it be on tmp or move to stack.
+			}
+
+			this::intlen(x); or ::strlen(e);
+
+			printv(#32);
+			printa(#32);
+
+		Assignment 5: 
+			In the earlier assignments we never free any memory or resets the slots to a default values we just overwrites the value inside the slots this implies the problem with getting wrong values if we dont controls the memory correctly. To reset values would be inefficient, unecessary and also what should be the default value when you are free to use them all? This issue is normaly solved with abstraction layers that controlls the memory slots but these layers are not implemented in Q but it is possible for user to implement.
+
+		Assignment 6:
+			In this assignment we will create a new file implement strcmp and call it from out main file.
+			* Create a new file named boo.q
+			* Implement a strcmp function that takes 2 arguments. Result values are:
+			    # 0 if str1 < str2 || str1 > str2.
+				# 1 if str1 == str2.
+			* Go back to foo.main.q and include the boo.q file after "SYSMEMALLOCHEAPTMP(16);"
+			* Inside foo.main.q create 2 strings (at least 3 characters in each).
+			* Inside foo.main.q create a function that check the result value from strcmp and print a string for the different states.
+
+		Solution 6:
+			//file boo.q
+			::function strcmp(str1, str2) {
+				#32 = 0;
+
+				do {
+					if (str1 + #32 !=  str2 + #32) {
+						#11 = 0;
+					}
+
+					#32 += 1;
+				} while (str1 + #32 != '\0' && str2 + #32 != '\0');
+				#11 = 1;
+			}
+
+			//file foo.main.q
+			SYSMEMALLOCHEAPTMP(16);
+
+			include("../boo.q");
+			alias str1 : #0 = "hej pa \0";
+			alias str2 : #8 = "dig\0";
+
+			::function doCmp(#0, #8) {
+			strcmp(#0, #8);
+				if (#11 == 0) {
+					prints("Strings are not equal");
+				} else {
+					prints("Strings are equal");
+				}
+			}
+
 		
-
-	
